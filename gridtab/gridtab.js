@@ -17,6 +17,7 @@
       borderWidth: 2,
       tabBorderColor: "#ddd",
       tabPadding: 25,
+      tabMargin: 25,
       contentBorderColor: "#ddd",
       contentPadding: 35,
       contentBackground: "#fff",
@@ -71,7 +72,7 @@
     (_.options.config.rtl) && ($(_.element).attr('dir','rtl'));
     _.setTabOrder();
     _.showControls();
-    _.addCssRules(_.options.grid, _.options.borderWidth, _.options.tabPadding, _.options.tabBorderColor, _.options.contentPadding, _.options.contentBorderColor, _.options.contentBackground, _.options.activeTabBackground, null);
+    _.addCssRules(_.options.grid, _.options.borderWidth, _.options.tabPadding, _.options.tabMargin, _.options.tabBorderColor, _.options.contentPadding, _.options.contentBorderColor, _.options.contentBackground, _.options.activeTabBackground, null);
     (_.options.responsive !== null) ? _.responsiveBreakpoints() : _.setContentOrder(_.options.grid);
 
 
@@ -173,19 +174,21 @@
   /**
    * Generate CSS rules
    */
-  Gridtab.prototype.addCssRules = function(grid, borderWidth, tabPadding, tabBorderColor, contentPadding, contentBorderColor, contentBackground, activeTabBackground, breakpoint) {
+  Gridtab.prototype.addCssRules = function(grid, borderWidth, tabPadding, tabMargin, tabBorderColor, contentPadding, contentBorderColor, contentBackground, activeTabBackground, breakpoint) {
     var _ = this;
-    if (grid !== null || borderWidth !== null || tabPadding !== null || tabBorderColor !== null || contentBorderColor !== null || contentPadding !== null || contentBackground !== null || activeTabBackground !== null) {
+    if (grid !== null || borderWidth !== null || tabPadding !== null || tabMargin !== null || tabBorderColor !== null || contentBorderColor !== null || contentPadding !== null || contentBackground !== null || activeTabBackground !== null) {
       var cssRules = '';
       var tabWidth = '';
       (grid !== null) && (tabWidth = Math.floor((100 / grid) * 100) / 100);
-      if (grid !== null || borderWidth !== null || tabBorderColor !== null || tabPadding !== null) {
+      if (grid !== null || borderWidth !== null || tabBorderColor !== null || tabPadding !== null || tabMargin !== null) {
         //Container Styles
+        (tabMargin !== null) && (cssRules += '.gridtab--' + instanceCount + '{margin-left: calc(-' + tabMargin + 'px + ' + borderWidth + 'px); margin-right: ' + borderWidth + 'px;}');
         (borderWidth !== null) && (cssRules += '.gridtab--' + instanceCount + '{padding:' + borderWidth + 'px 0 0 ' + borderWidth + 'px;}');
         //Tab Styles
         cssRules += '.gridtab--' + instanceCount + ' > dt{';
-        (borderWidth !== null) && (cssRules += 'margin:-' + borderWidth + 'px 0 0 -' + borderWidth + 'px;');
-        (grid !== null) && (cssRules += 'min-width:calc(' + tabWidth + '% + ' + borderWidth + 'px);width:calc(' + tabWidth + '% + ' + borderWidth + 'px);');
+        (tabMargin !== null) && (cssRules += 'margin: calc(' + tabMargin + 'px - ' + borderWidth + 'px) 0 0 calc(' + tabMargin + 'px - ' + borderWidth + 'px);');
+        // (borderWidth !== null) && (cssRules += 'margin:-' + borderWidth + 'px 0 0 -' + borderWidth + 'px;');
+        (grid !== null) && (cssRules += 'min-width:calc(' + tabWidth + '% - ' + tabMargin + 'px + ' + borderWidth + 'px);width:calc(' + tabWidth + '% - ' + tabMargin + 'px + ' + borderWidth + 'px);');
         (borderWidth !== null) && (cssRules += 'border-width:' + borderWidth + 'px;');
         (tabPadding !== null) && (cssRules += 'padding:' + tabPadding + 'px;');
         (tabBorderColor !== null) && (cssRules += 'border-color:' + tabBorderColor + ';');
@@ -197,8 +200,8 @@
       //Content Styles
       if (contentBorderColor !== null || borderWidth !== null || contentBackground !== null || contentPadding !== null) {
         cssRules += '.gridtab--' + instanceCount + '>dd{';
-        cssRules += 'min-width:calc(' + (tabWidth * grid) + '% + ' + borderWidth + 'px);max-width:calc(' + (tabWidth * grid) + '% + ' + borderWidth + 'px);';
-        (borderWidth !== null) && (cssRules += 'margin:-' + borderWidth + 'px 0 0 -' + borderWidth + 'px !important;border-width:' + borderWidth + 'px;');
+        cssRules += 'min-width:calc(' + (tabWidth * grid) + '% - ' + tabMargin + 'px + ' + borderWidth + 'px);max-width:calc(' + (tabWidth * grid) + '% - ' + tabMargin + 'px + ' + borderWidth + 'px);';
+        (borderWidth !== null) && (cssRules += 'margin: 0 0 0 calc(-' + borderWidth + 'px + ' + tabMargin + 'px) !important;border-width:' + borderWidth + 'px;');
         (contentBorderColor !== null) && (cssRules += 'border-color:' + contentBorderColor + ';');
         (contentPadding !== null) && (cssRules += 'padding:' + contentPadding + 'px;');
         (contentBackground !== null) && (cssRules += 'background:' + contentBackground + ';');
@@ -253,12 +256,13 @@
           borderWidth = responsiveSettings.borderWidth || _.options.borderWidth,
           tabBorderColor = responsiveSettings.tabBorderColor || null,
           tabPadding = responsiveSettings.tabPadding || null,
+          tabMargin = responsiveSettings.tabMargin || _.options.tabMargin,
           activeTabBackground = responsiveSettings.activeTabBackground || null,
           contentPadding = responsiveSettings.contentPadding || null,
           contentBorderColor = responsiveSettings.contentBorderColor || null,
           contentBackground = responsiveSettings.contentBackground || null,
           breakpoint = _.options.responsive[i].breakpoint || null;
-        _.addCssRules(grid, borderWidth, tabPadding, tabBorderColor, contentPadding, contentBorderColor, contentBackground, activeTabBackground, breakpoint);
+        _.addCssRules(grid, borderWidth, tabPadding, tabMargin, tabBorderColor, contentPadding, contentBorderColor, contentBackground, activeTabBackground, breakpoint);
         _.breakpoints.push(breakpoint);
         _.grids.push(grid);
         mqls.push(window.matchMedia("(max-width:" + _.breakpoints[i] + "px)"));
